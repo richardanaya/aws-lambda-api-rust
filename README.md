@@ -13,9 +13,9 @@ Build
 make
 ```
 
-Plan next deploy
+Check next deploy will succeed
 ```
-make plan
+make check-deploy
 ```
 
 Deploy
