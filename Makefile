@@ -21,7 +21,7 @@ all: lambda_rust__build terraform__build
 ##clean  - Clean up project
 clean: lambda_rust__clean terraform__clean 
 
-plan: all terraform__plan
+check-deploy: all terraform__plan
 
 
 deploy: all terraform__apply
