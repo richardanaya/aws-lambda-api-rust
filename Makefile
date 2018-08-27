@@ -4,7 +4,8 @@ PROJECT_DESCRIPTION  = A simple api with Rust and Lambda
 
 # Tools
 GIT                  = git
-CARGO                = mkdir -p .cargo && docker run -v $(abspath .vendor/cargo):/home/.cargo -e CARGO_HOME='/home/.cargo' -v `pwd`:/code -w /code richardanaya/aws-lambda-rust:1.28.0 cargo
+CARGO                = docker run -v $(abspath .vendor/cargo):/home/.cargo -e CARGO_HOME='/home/.cargo' -v `pwd`:/code -w /code richardanaya/aws-lambda-rust:1.28.0 cargo
+#TERRAFORM            = docker run -v $(abspath .vendor/terraform):/home/.terraform.d -v $(PWD):/code -w /code/dist/terraform hashicorp/terraform:0.11.8
 # Vendoring
 ifneq ("$(wildcard .vendor)","")
 include .vendor/make/prelude.mk

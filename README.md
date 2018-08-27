@@ -2,7 +2,7 @@
 
 ## Setup
 * install `make`
-* install `rust`
+* install `docker`
 * install `terraform`
 * run `make vendor`
 * run `make help` to see available commands
