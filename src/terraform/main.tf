@@ -80,3 +80,10 @@ resource "aws_lambda_permission" "apigw_lambda" {
   principal     = "apigateway.amazonaws.com"
   source_arn = "arn:aws:execute-api:us-east-1:${data.aws_caller_identity.current.account_id}:${aws_api_gateway_rest_api.api.id}/*/*"
 }
+
+resource "aws_api_gateway_deployment" "MyDemoDeployment" {
+  depends_on = ["aws_api_gateway_integration.integration","aws_api_gateway_integration.integration_root"]
+
+  rest_api_id = "${aws_api_gateway_rest_api.api.id}"
+  stage_name  = "api"
+}
