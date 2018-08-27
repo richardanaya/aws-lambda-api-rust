@@ -4,7 +4,7 @@ PROJECT_DESCRIPTION  = A simple api with Rust and Lambda
 
 # Tools
 GIT                  = git
-
+CARGO                = mkdir -p .cargo && docker run -v $(abspath .vendor/cargo):/home/.cargo -e CARGO_HOME='/home/.cargo' -v `pwd`:/code -w /code richardanaya/aws-lambda-rust:1.28.0 cargo
 # Vendoring
 ifneq ("$(wildcard .vendor)","")
 include .vendor/make/prelude.mk
@@ -35,3 +35,4 @@ vendor:
 	@echo Vendoring Makefiles
 	@rm -rf .vendor
 	@$(GIT) clone https://github.com/richardanaya/makefiles.git .vendor/make
+	@mkdir -p .vendor/cargo
