@@ -13,13 +13,13 @@ include .vendor/make/lambda_rust.mk
 include .vendor/make/terraform.mk
 endif
 
-.PHONY : all check deploy clean 
+.PHONY : all check deploy clean
 
 ##all          - Build everything
-all: lambda_rust__build terraform__build 
+all: lambda_rust__build terraform__build
 
 ##clean        - Clean up project
-clean: lambda_rust__clean terraform__clean 
+clean: lambda_rust__clean terraform__clean
 
 ##check-deploy - Verify next deploy will succeed
 check-deploy: all terraform__plan
@@ -27,6 +27,8 @@ check-deploy: all terraform__plan
 ##deploy       - Deploy infrastructure
 deploy: all terraform__apply
 
+##destroy      - Destroy infrastructure
+destroy: all terraform__destroy
 
 ##vendor       - Vendor makefiles
 vendor:
