@@ -28,6 +28,24 @@ resource "aws_iam_role" "iam_for_lambda" {
 EOF
 }
 
+resource "aws_iam_role_policy" "test_policy" {
+  name = "test_policy"
+  role = "${aws_iam_role.iam_for_lambda.id}"
+
+  policy = <<EOF
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+        "Effect": "Allow",
+        "Action": "secretsmanager:GetSecretValue",
+        "Resource": "arn:aws:secretsmanager:us-east-1:${data.aws_caller_identity.current.account_id}:secret:elephantsql_connection-At46Hm"
+    }
+  ]
+}
+EOF
+}
+
 resource "aws_lambda_function" "rust-api_lambda" {
   filename         = "../lambdas/rust-api.zip"
   function_name    = "rust-api"
