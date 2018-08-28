@@ -3,35 +3,27 @@ extern crate aws_lambda as lambda;
 extern crate serde_json;
 extern crate rusoto_core;
 extern crate rusoto_secretsmanager;
-extern crate postgres;
-use postgres::{Connection, TlsMode};
+extern crate diesel;
+
+use diesel::prelude::*;
+use diesel::pg::PgConnection;
 
 use rusoto_core::Region;
 use rusoto_secretsmanager::{SecretsManager, SecretsManagerClient,GetSecretValueRequest};
 
-pub fn establish_connection() -> Connection {
+pub fn establish_connection() -> PgConnection {
     let secretclient = SecretsManagerClient::new(Region::UsEast1);
     let mut secret_request = GetSecretValueRequest::default();
     secret_request.secret_id = "elephantsql_connection".to_owned();
     let response = secretclient.get_secret_value(secret_request).sync().unwrap();
     let connection_string = response.secret_string.unwrap();
-    Connection::connect(connection_string, TlsMode::None).unwrap()
-}
-
-struct Movie {
-    title: String
+    PgConnection::establish(&connection_string).expect(&format!("Error connecting to postgresql"))
 }
 
 fn main() {
     // start the runtime, and return a greeting every time we are invoked
     lambda::start(|()|{
-        let conn = establish_connection();
-        for row in &conn.query("SELECT title FROM movies ", &[]).unwrap() {
-            let movie = Movie {
-                title: row.get(0)
-            };
-            println!("Found movie {}",movie.title);
-        }
+        let _connection = establish_connection();
         Ok(json!({
           "statusCode":200,
           "body":"Connected!"

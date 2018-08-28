@@ -18,6 +18,7 @@ endif
 
 ##all          - Build everything
 all: lambda_rust__build terraform__build
+	@zip -9 -J dist/lambdas/rust-api.zip src/libpq.so.5
 
 ##clean        - Clean up project
 clean: lambda_rust__clean terraform__clean
