@@ -1,5 +1,13 @@
 data "aws_caller_identity" "current" {}
 
+terraform {
+  backend "s3" {
+    bucket = "richardanaya-remote-state"
+    key    = "rust-api/terraform.tfstate"
+    region = "us-east-1"
+  }
+}
+
 resource "aws_iam_role" "iam_for_lambda" {
   name = "iam_for_lambda"
 
