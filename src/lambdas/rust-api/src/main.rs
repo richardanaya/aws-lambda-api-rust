@@ -34,9 +34,9 @@ pub fn establish_connection() -> PgConnection {
 }
 
 fn main() {
+    let connection: PgConnection = establish_connection();
     // start the runtime, and return a greeting every time we are invoked
-    lambda::start(|()|{
-        let connection = establish_connection();
+    lambda::start(move |()|{
         let results = diesel::sql_query("select * from movies").load::<Movie>(&connection);
         for rows in &results {
             for movie in rows {
