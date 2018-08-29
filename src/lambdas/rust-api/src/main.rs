@@ -39,10 +39,10 @@ fn main() {
     let connection: PgConnection = establish_connection();
 
     lambda::start(move |()|{
-        let results = diesel::sql_query("select * from movies").load::<Movie>(&connection);
+        let results = diesel::sql_query("select * from movies").load::<Movie>(&connection).unwrap();
         Ok(json!({
           "statusCode":200,
-          "body": format!("List of movies: {}", results.unwrap().iter().map(|ref m| m.title.to_string()).collect::<Vec<_>>().join(", "))
+          "body": format!("List of movies: {}", results.iter().map(|ref m| m.title.to_string()).collect::<Vec<_>>().join(", "))
         }))
     })
 }
