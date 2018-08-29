@@ -26,8 +26,10 @@ struct Movie {
 
 pub fn establish_connection() -> PgConnection {
     let secretclient = SecretsManagerClient::new(Region::UsEast1);
-    let mut secret_request = GetSecretValueRequest::default();
-    secret_request.secret_id = "elephantsql_connection".to_owned();
+    let secret_request = GetSecretValueRequest {
+        secret_id : "elephantsql_connection".to_owned(),
+        ..Default::default()
+    };
     let response = secretclient.get_secret_value(secret_request).sync().unwrap();
     let connection_string = response.secret_string.unwrap();
     PgConnection::establish(&connection_string).expect(&format!("Error connecting to postgresql"))
@@ -35,17 +37,12 @@ pub fn establish_connection() -> PgConnection {
 
 fn main() {
     let connection: PgConnection = establish_connection();
-    // start the runtime, and return a greeting every time we are invoked
+
     lambda::start(move |()|{
         let results = diesel::sql_query("select * from movies").load::<Movie>(&connection);
-        for rows in &results {
-            for movie in rows {
-                println!("{:?}",movie.title);
-            }
-        }
         Ok(json!({
           "statusCode":200,
-          "body":"Connected!"
+          "body": format!("List of movies: {}", results.unwrap().iter().map(|ref m| m.title.to_string()).collect::<Vec<_>>().join(", "))
         }))
     })
 }
