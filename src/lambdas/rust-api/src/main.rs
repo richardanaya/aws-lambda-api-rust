@@ -1,8 +1,8 @@
 extern crate aws_lambda as lambda;
-#[macro_use]
-extern crate serde_json;
 extern crate rusoto_core;
 extern crate rusoto_secretsmanager;
+#[macro_use]
+extern crate serde_json;
 #[macro_use]
 extern crate diesel;
 
