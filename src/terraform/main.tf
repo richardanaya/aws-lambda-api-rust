@@ -9,7 +9,7 @@ terraform {
 }
 
 module "rust-lambda" {
-  source     = "../../.vendor/terraform/lambda"
+  source     = "../../.vendor/terraform/aws-lambda"
   name       = "rust-api"
   zip_path  = "../lambdas/rust-api.zip"
   policy_statements = <<EOF
@@ -24,7 +24,7 @@ EOF
 }
 
 module "rust-api-gw" {
-  source     = "../../.vendor/terraform/api-gw-single-lambda"
+  source     = "../../.vendor/terraform/aws-api-gw-single-lambda"
   name       = "rust-api"
   lambda-arn = "${module.rust-lambda.arn}"
 }

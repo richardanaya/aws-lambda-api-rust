@@ -38,4 +38,5 @@ vendor:
 	@echo Vendoring Makefiles
 	@rm -rf .vendor
 	@$(GIT) clone https://github.com/richardanaya/makefiles.git .vendor/make
+	@$(GIT) clone https://github.com/richardanaya/terraforms.git .vendor/terraform
 	@mkdir -p .vendor/cargo
