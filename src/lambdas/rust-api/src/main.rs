@@ -18,7 +18,7 @@ table! {
     }
 }
 
-#[derive(QueryableByName,Debug)]
+#[derive(QueryableByName)]
 #[table_name="movies"]
 struct Movie {
     title: String
