@@ -33,7 +33,7 @@ fn main() {
         let results = diesel::sql_query("select * from movies").load::<Movie>(&connection)?;
         Ok(json!({
           "statusCode":200,
-          "body": format!("List of movies: {}", results.iter().map(|ref m| m.title.to_string()).collect::<Vec<_>>().join(", "))
+          "body": format!("List of movies: {}", results.iter().map(|m| m.title.to_string()).collect::<Vec<_>>().join(", "))
         }))
     })
 }
