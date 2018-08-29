@@ -9,7 +9,6 @@ extern crate diesel;
 use diesel::prelude::*;
 use diesel::pg::PgConnection;
 use diesel::sql_types::*;
-
 use rusoto_core::Region;
 use rusoto_secretsmanager::{SecretsManager, SecretsManagerClient,GetSecretValueRequest};
 
@@ -29,10 +28,9 @@ pub fn establish_connection() -> PgConnection {
 }
 
 fn main() {
-    let connection: PgConnection = establish_connection();
-
+    let connection = establish_connection();
     lambda::start(move |()|{
-        let results = diesel::sql_query("select * from movies").load::<Movie>(&connection).unwrap();
+        let results = diesel::sql_query("select * from movies").load::<Movie>(&connection)?;
         Ok(json!({
           "statusCode":200,
           "body": format!("List of movies: {}", results.iter().map(|ref m| m.title.to_string()).collect::<Vec<_>>().join(", "))
