@@ -7,6 +7,8 @@ extern crate failure;
 extern crate serde_json;
 #[macro_use]
 extern crate diesel;
+#[macro_use]
+extern crate lazy_static;
 
 use diesel::pg::PgConnection;
 use diesel::prelude::*;
@@ -16,6 +18,7 @@ use lambda::event::apigw::ApiGatewayProxyRequest;
 use lambda::Context;
 use rusoto_core::Region;
 use rusoto_secretsmanager::{GetSecretValueRequest, SecretsManager, SecretsManagerClient};
+use std::sync::Mutex;
 
 #[derive(QueryableByName)]
 struct Movie {
@@ -23,13 +26,20 @@ struct Movie {
     title: String,
 }
 
+lazy_static! {
+    static ref CONNECTION: Mutex<PgConnection> =  {
+        let connection = establish_connection().unwrap();
+        Mutex::new(connection)
+    };
+}
+
 fn handle_request(
     e: ApiGatewayProxyRequest,
-    _ctx: Context,
-    conn: &PgConnection,
+    _ctx: Context
 ) -> Result<serde_json::Value, Error> {
+    let connection :&PgConnection = &CONNECTION.lock().unwrap();
     // query db
-    let movies = diesel::sql_query("select * from movies").load::<Movie>(conn)?;
+    let movies = diesel::sql_query("select * from movies").load::<Movie>(connection)?;
 
     // return a json structure api gateway expects for a 200 response
     Ok(json!({
@@ -60,11 +70,12 @@ pub fn establish_connection() -> Result<PgConnection, Error> {
     Ok(PgConnection::establish(&connection_string)?)
 }
 
+
+
 fn main() -> Result<(), Error> {
-    let connection = establish_connection()?;
     lambda::start(move |e: ApiGatewayProxyRequest| {
         let ctx = Context::current();
-        handle_request(e, ctx, &connection)
+        handle_request(e, ctx)
     });
     Ok(())
 }
