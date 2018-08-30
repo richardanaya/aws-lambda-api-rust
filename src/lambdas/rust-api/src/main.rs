@@ -8,11 +8,11 @@ extern crate serde_json;
 #[macro_use]
 extern crate diesel;
 
-use failure::Error;
-use failure::ResultExt;
 use diesel::pg::PgConnection;
 use diesel::prelude::*;
 use diesel::sql_types::*;
+use failure::Error;
+use failure::ResultExt;
 use rusoto_core::Region;
 use rusoto_secretsmanager::{GetSecretValueRequest, SecretsManager, SecretsManagerClient};
 
@@ -37,12 +37,19 @@ pub fn establish_connection() -> Result<PgConnection, Error> {
     Ok(PgConnection::establish(&connection_string).context("Could not connect to database.")?)
 }
 
-fn main() -> Result<(),Error> {
+fn main() -> Result<(), Error> {
     let connection = establish_connection()?;
     lambda::start(move |()| {
         let results = diesel::sql_query("select * from movies").load::<Movie>(&connection);
         let msg = match results {
-            Ok(movies) => format!("List of movies: {}", movies.iter().map(|m| m.title.to_string()).collect::<Vec<_>>().join(", ")),
+            Ok(movies) => format!(
+                "List of movies: {}",
+                movies
+                    .iter()
+                    .map(|m| m.title.to_string())
+                    .collect::<Vec<_>>()
+                    .join(", ")
+            ),
             Err(e) => format!("error calling sql: {:?}", e),
         };
         Ok(json!({
