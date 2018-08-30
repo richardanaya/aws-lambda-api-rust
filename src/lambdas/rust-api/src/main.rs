@@ -29,22 +29,28 @@ fn handle_request(
     _ctx: Context,
     conn: &PgConnection,
 ) -> Result<serde_json::Value, Error> {
+    // query db
     let results = diesel::sql_query("select * from movies").load::<Movie>(conn);
-    let msg = match results {
+
+    let body = match results {
+        // query succeeded
         Ok(movies) => format!(
             "List of movies for url path {}: {}",
-            e.path,
-            movies
+            e.path, // The path of the current url (e.g. /index.html )
+            movies  // Join the list of movie names with a ', '
                 .iter()
                 .map(|m| m.title.to_string())
                 .collect::<Vec<_>>()
                 .join(", ")
         ),
+        // query failed
         Err(e) => format!("error calling sql: {:?}", e),
     };
+
+    // return a json structure api gateway expects for a 200 response
     Ok(json!({
       "statusCode":200,
-      "body": msg
+      "body": body
     }))
 }
 
