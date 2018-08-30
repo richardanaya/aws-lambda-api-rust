@@ -40,10 +40,14 @@ pub fn establish_connection() -> Result<PgConnection, Error> {
 fn main() -> Result<(),Error> {
     let connection = establish_connection()?;
     lambda::start(move |()| {
-        let results = diesel::sql_query("select * from movies").load::<Movie>(&connection)?;
+        let results = diesel::sql_query("select * from movies").load::<Movie>(&connection);
+        let msg = match results {
+            Ok(movies) => format!("List of movies: {}", movies.iter().map(|m| m.title.to_string()).collect::<Vec<_>>().join(", ")),
+            Err(e) => format!("error calling sql: {:?}", e),
+        };
         Ok(json!({
           "statusCode":200,
-          "body": format!("List of movies: {}", results.iter().map(|m| m.title.to_string()).collect::<Vec<_>>().join(", "))
+          "body": msg
         }))
     });
     Ok(())
