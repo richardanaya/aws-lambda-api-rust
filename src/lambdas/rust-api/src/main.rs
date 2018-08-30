@@ -12,7 +12,6 @@ use diesel::pg::PgConnection;
 use diesel::prelude::*;
 use diesel::sql_types::*;
 use failure::Error;
-use failure::ResultExt;
 use lambda::event::apigw::ApiGatewayProxyRequest;
 use lambda::Context;
 use rusoto_core::Region;
@@ -53,13 +52,12 @@ pub fn establish_connection() -> Result<PgConnection, Error> {
     secret_request.secret_id = "elephantsql_connection".to_owned();
     let response = secretclient
         .get_secret_value(secret_request)
-        .sync()
-        .context("Could not get db connection string.")?;
+        .sync()?;
     let connection_string = match response.secret_string {
         Some(s) => s,
         None => return Err(format_err!("DB connection string is empty.")),
     };
-    Ok(PgConnection::establish(&connection_string).context("Could not connect to database.")?)
+    Ok(PgConnection::establish(&connection_string)?)
 }
 
 fn main() -> Result<(), Error> {
