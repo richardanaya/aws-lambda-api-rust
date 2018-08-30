@@ -5,6 +5,7 @@ authors = ["Richard Anaya <richard.anaya@gmail.com>"]
 
 [dependencies]
 aws_lambda = { git = "https://github.com/srijs/rust-aws-lambda" }
+failure = "0.1.2"
 serde_json = "1.0"
 rusoto_core = "0.33.0"
 rusoto_secretsmanager = "0.33.0"
