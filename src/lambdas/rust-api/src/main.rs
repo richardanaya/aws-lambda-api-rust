@@ -8,13 +8,13 @@ extern crate serde_json;
 #[macro_use]
 extern crate diesel;
 
-use failure::Error;
-use failure::ResultExt;
 use diesel::pg::PgConnection;
 use diesel::prelude::*;
 use diesel::sql_types::*;
-use lambda::Context;
+use failure::Error;
+use failure::ResultExt;
 use lambda::event::apigw::ApiGatewayProxyRequest;
+use lambda::Context;
 use rusoto_core::Region;
 use rusoto_secretsmanager::{GetSecretValueRequest, SecretsManager, SecretsManagerClient};
 
@@ -24,10 +24,22 @@ struct Movie {
     title: String,
 }
 
-fn handle_request(e : ApiGatewayProxyRequest, _ctx : Context, connection : &PgConnection) -> Result<serde_json::Value,Error> {
-    let results = diesel::sql_query("select * from movies").load::<Movie>(connection);
+fn handle_request(
+    e: ApiGatewayProxyRequest,
+    _ctx: Context,
+    conn: &PgConnection,
+) -> Result<serde_json::Value, Error> {
+    let results = diesel::sql_query("select * from movies").load::<Movie>(conn);
     let msg = match results {
-        Ok(movies) => format!("List of movies for url path {}: {}",e.path, movies.iter().map(|m| m.title.to_string()).collect::<Vec<_>>().join(", ")),
+        Ok(movies) => format!(
+            "List of movies for url path {}: {}",
+            e.path,
+            movies
+                .iter()
+                .map(|m| m.title.to_string())
+                .collect::<Vec<_>>()
+                .join(", ")
+        ),
         Err(e) => format!("error calling sql: {:?}", e),
     };
     Ok(json!({
@@ -51,11 +63,11 @@ pub fn establish_connection() -> Result<PgConnection, Error> {
     Ok(PgConnection::establish(&connection_string).context("Could not connect to database.")?)
 }
 
-fn main() -> Result<(),Error> {
+fn main() -> Result<(), Error> {
     let connection = establish_connection()?;
-    lambda::start(move |e : ApiGatewayProxyRequest| {
+    lambda::start(move |e: ApiGatewayProxyRequest| {
         let ctx = Context::current();
-        handle_request(e,ctx,&connection)
+        handle_request(e, ctx, &connection)
     });
     Ok(())
 }
