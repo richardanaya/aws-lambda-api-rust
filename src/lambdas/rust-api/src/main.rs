@@ -13,6 +13,8 @@ use failure::ResultExt;
 use diesel::pg::PgConnection;
 use diesel::prelude::*;
 use diesel::sql_types::*;
+use lambda::Context;
+use lambda::event::apigw::ApiGatewayProxyRequest;
 use rusoto_core::Region;
 use rusoto_secretsmanager::{GetSecretValueRequest, SecretsManager, SecretsManagerClient};
 
@@ -20,6 +22,18 @@ use rusoto_secretsmanager::{GetSecretValueRequest, SecretsManager, SecretsManage
 struct Movie {
     #[sql_type = "Text"]
     title: String,
+}
+
+fn handle_request(e : ApiGatewayProxyRequest, _ctx : Context, connection : &PgConnection) -> Result<serde_json::Value,Error> {
+    let results = diesel::sql_query("select * from movies").load::<Movie>(connection);
+    let msg = match results {
+        Ok(movies) => format!("List of movies for url path {}: {}",e.path, movies.iter().map(|m| m.title.to_string()).collect::<Vec<_>>().join(", ")),
+        Err(e) => format!("error calling sql: {:?}", e),
+    };
+    Ok(json!({
+      "statusCode":200,
+      "body": msg
+    }))
 }
 
 pub fn establish_connection() -> Result<PgConnection, Error> {
@@ -39,16 +53,9 @@ pub fn establish_connection() -> Result<PgConnection, Error> {
 
 fn main() -> Result<(),Error> {
     let connection = establish_connection()?;
-    lambda::start(move |()| {
-        let results = diesel::sql_query("select * from movies").load::<Movie>(&connection);
-        let msg = match results {
-            Ok(movies) => format!("List of movies: {}", movies.iter().map(|m| m.title.to_string()).collect::<Vec<_>>().join(", ")),
-            Err(e) => format!("error calling sql: {:?}", e),
-        };
-        Ok(json!({
-          "statusCode":200,
-          "body": msg
-        }))
+    lambda::start(move |e : ApiGatewayProxyRequest| {
+        let ctx = Context::current();
+        handle_request(e,ctx,&connection)
     });
     Ok(())
 }
