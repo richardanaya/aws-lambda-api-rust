@@ -13,13 +13,11 @@ module "rust-lambda" {
   name       = "rust-api"
   zip_path  = "../lambdas/rust-api.zip"
   policy_statements = <<EOF
-[
-  {
-      "Effect": "Allow",
-      "Action": "secretsmanager:GetSecretValue",
-      "Resource": "arn:aws:secretsmanager:us-east-1:${data.aws_caller_identity.current.account_id}:secret:elephantsql_connection-At46Hm"
-  }
-]
+{
+    "Effect": "Allow",
+    "Action": "secretsmanager:GetSecretValue",
+    "Resource": "arn:aws:secretsmanager:us-east-1:${data.aws_caller_identity.current.account_id}:secret:elephantsql_connection-At46Hm"
+}
 EOF
 }
 
