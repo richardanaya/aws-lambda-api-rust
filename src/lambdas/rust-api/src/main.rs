@@ -25,11 +25,11 @@ struct Movie {
     title: String,
 }
 
+/// Handle API Gateway request and return API Gateway response.
 fn handle_request(e: ApiGatewayProxyRequest, _ctx: Context) -> Result<serde_json::Value, Error> {
     let connection: &PgConnection = &db::CONNECTION.lock().unwrap();
     let movies = diesel::sql_query("select * from movies").load::<Movie>(connection)?;
 
-    // return a json structure api gateway expects for a 200 response
     Ok(json!({
       "statusCode":200,
       "body": format!(
@@ -44,6 +44,7 @@ fn handle_request(e: ApiGatewayProxyRequest, _ctx: Context) -> Result<serde_json
     }))
 }
 
+/// Start listening for AWS Lambda requests for API Gateway.
 fn main() {
     lambda::start(move |e: ApiGatewayProxyRequest| {
         let ctx = Context::current();

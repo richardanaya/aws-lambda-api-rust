@@ -5,6 +5,7 @@ use rusoto_core::Region;
 use rusoto_secretsmanager::{GetSecretValueRequest, SecretsManager, SecretsManagerClient};
 use std::sync::Mutex;
 
+/// Global database connection.
 lazy_static! {
     pub static ref CONNECTION: Mutex<PgConnection> = {
         let connection = establish_connection().unwrap();
@@ -12,6 +13,7 @@ lazy_static! {
     };
 }
 
+/// Retrieve connection string from AWS Secrets and connect to PostgreSQL.
 pub fn establish_connection() -> Result<PgConnection, Error> {
     let secretclient = SecretsManagerClient::new(Region::UsEast1);
     let mut secret_request = GetSecretValueRequest::default();
