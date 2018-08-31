@@ -27,7 +27,6 @@ struct Movie {
 
 fn handle_request(e: ApiGatewayProxyRequest, _ctx: Context) -> Result<serde_json::Value, Error> {
     let connection: &PgConnection = &db::CONNECTION.lock().unwrap();
-    // query db
     let movies = diesel::sql_query("select * from movies").load::<Movie>(connection)?;
 
     // return a json structure api gateway expects for a 200 response
