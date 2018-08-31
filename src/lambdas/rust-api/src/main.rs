@@ -39,9 +39,8 @@ fn handle_request(e: ApiGatewayProxyRequest, _ctx: Context) -> Result<serde_json
               .iter()
               .map(|m| m.title.to_string())
               .collect::<Vec<_>>()
-              .join(", ")
-      )
-    }))
+              .join(", "))
+          }))
 }
 
 /// Start listening for AWS Lambda requests for API Gateway.
