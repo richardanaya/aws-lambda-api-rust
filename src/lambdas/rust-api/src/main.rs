@@ -31,7 +31,7 @@ fn handle_request(e: ApiGatewayProxyRequest, _ctx: Context) -> Result<serde_json
     let movies = diesel::sql_query("select * from movies").load::<Movie>(connection)?;
 
     Ok(json!({
-      "statusCode":200,
+      "statusCode": 200,
       "body": format!(
           "List of movies for url path {}: {}",
           e.path, // The path of the current url (e.g. /index.html )
